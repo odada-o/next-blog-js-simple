@@ -1,17 +1,47 @@
-import React from 'react'
-import { posts } from '@/data/posts'
+"use client"
+
+import React, { useEffect, useState } from 'react'
+import Link from 'next/link'
+import axios from 'axios'
 
 const PostsPage = () => {
+
+  // 게시글 상태 추가
+  const [posts, setPosts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+
+  // 마운트 시
+  useEffect(() => {
+    // 게시글 목록 불러오기
+    // axios.get(api주소).then(() => {}).catch(() => {})
+    axios
+      .get('/api/posts')
+      .then((res) => {
+        setPosts(res.data)
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error(err)
+        setLoading(false)
+      })
+  }, [])
+
+  // 로딩 중
+  if(loading) {return <div>로딩 중...</div>}
+
   return (
-    <div>
-      <h2>블로그 목록</h2>
-      {posts.map((post) => (
-        <div key={post.id}>
-          <h3>{post.title}</h3>
-          <p>{post.content}</p>
-          <span>{post.createdAt}</span>
-        </div>
-      ))}
+    <div className='container mx-auto py-10'>
+      <h2 className='text-6xl font-black'>블로그 목록</h2>
+      <div className='divide-y divide-gray-300'>
+        {posts.map((post) => (
+          <Link key={post.id} href={`/posts/${post.id}`} className='flex flex-col gap-4 my-5 pt-10 py-5'>
+            <h3 className='text-4xl font-semibold'>{post.title}</h3>
+            <p className='text-xl'>{post.content}</p>
+            <span className='text-gray-400'>{post.createdAt}</span>
+          </Link>
+        ))}
+      </div>
       
     </div>
   )
