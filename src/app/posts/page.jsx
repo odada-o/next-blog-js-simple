@@ -33,6 +33,7 @@ const PostsPage = () => {
   return (
     <div className='container mx-auto py-10'>
       <h2 className='text-6xl font-black'>블로그 목록</h2>
+      <Link href={'/posts/write'} className='p-5 bg-purple-400 text-white'>글쓰기</Link>
       <div className='divide-y divide-gray-300'>
         {posts.map((post) => (
           <Link key={post.id} href={`/posts/${post.id}`} className='flex flex-col gap-4 my-5 pt-10 py-5'>
