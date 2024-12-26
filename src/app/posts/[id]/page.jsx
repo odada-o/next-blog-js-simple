@@ -22,30 +22,51 @@ const PostDetailPage = ({params}) => {
         setPost(res.data)
         setLoading(false)
       })
-      .catch(() => {
-        console.error(error)
+      .catch((error) => {
+        // console.error(error)
         setLoading(false)
       })
-
   }, [resolvedParams.id, router])
 
+  const handleDelete = async () => {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+    try {
+      const res = await axios.delete(`/api/posts/${resolvedParams.id}`);
+      if (res.status === 200) {
+        router.push('/posts');
+      } else {
+        alert('삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      alert('오류가 발생했습니다.');
+    }
+  };
+
   if (loading) {return <div>로딩 중...</div>}
+  if (!post) return <div>게시글을 찾을 수 없습니다.</div>;
 
   return (
-    <div className='container mx-auto'>
-      <h2 className='text-4xl font-black'>
-        {post.title}
-      </h2>
-      <p className='text-xl'>
+    <div className='container mx-auto py-10 flex flex-col gap-4 min-h-screen'>
+      <div className='flex justify-between items-end font-black border-b border-gray-300 pb-5'>
+        <h2 className='text-4xl'>
+          {post.title}
+        </h2>
+        <span className='text-gray-400 block text-right'>
+          {post.createdAt}
+        </span>
+      </div>
+      <p className='text-xl flex-1'>
         {post.content}
       </p>
-      <span className='text-gray-400'>
-        {post.createdAt}
-      </span>
-      <div className='flex'>
-        <Link href={'/posts'}>목록</Link>
-        <button className='ml-auto'>수정</button>
-        <button>삭제</button>
+      <div className='flex border-t border-gray-300 pt-5'>
+        <Link href={'/posts'} className='bg-gray-200 p-3'>목록</Link>
+        <Link 
+          href={`/posts/${resolvedParams.id}/edit`} 
+          className='ml-auto bg-gray-200 p-3'>수정</Link>
+        <button 
+          onClick={handleDelete} 
+          className='ml-3 bg-gray-200 p-3'>삭제</button>
       </div>
     </div>
   )

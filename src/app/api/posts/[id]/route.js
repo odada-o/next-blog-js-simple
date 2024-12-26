@@ -85,7 +85,10 @@ export async function DELETE(req, { params }) {
     posts.splice(index, 1)
 
     // 클라이언트 응답
-    return NextResponse.json({ message: '게시글이 삭제되었습니다.'})
+    return NextResponse.json(
+      { message: '게시글이 삭제되었습니다.'},
+      { status: 200 }
+    )
   } catch (error) {
     return NextResponse.json(
       { error: '게시글을 삭제하는데 실패했습니다.' },
