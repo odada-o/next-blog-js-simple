@@ -1,6 +1,49 @@
-import React from 'react'
+"use client"
 
-const EditPage = () => {
+import React, { use, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import axios from 'axios'
+
+const EditPage = ({params}) => {
+
+  const router = useRouter()
+  const resolvedParams = use(params)
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+
+  useEffect(() => {
+    // 게시글 불러오기
+    axios
+      .get(`/api/posts/${resolvedParams.id}`)
+      .then((res) => {
+        // res = { data: { title: '제목', content: '내용' } }
+        setTitle(res.data.title)
+        setContent(res.data.content)
+      })
+      .catch((error) => {
+        console.error(error)
+        router.push('/posts')
+      })
+  }, [resolvedParams.id, router])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await axios.put(`/api/posts/${resolvedParams.id}`, {title, content})
+
+      if (res.status === 201) {
+        alert('글수정 완료')
+        router.push('/posts')
+      } else {
+        alert('글수정 실패')
+      }
+
+    } catch (error) {
+      console.error(error)
+      alert('오류 발생')
+    }
+  }
+
   return (
     <div className='container mx-auto'>
       <h2 className='sr-only'>포스트 글쓰기</h2>

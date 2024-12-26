@@ -56,7 +56,7 @@ export async function PUT(req, { params }) {
       content: data.content || posts[index].content
     }
 
-    return NextResponse.json(posts[index])
+    return NextResponse.json(posts[index], { status: 201 })
 
   } catch (error) {
     return NextResponse.json(
