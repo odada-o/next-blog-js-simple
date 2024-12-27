@@ -1,62 +1,79 @@
 import { posts } from "@/data/posts";
+import connectDB from "@/lib/mongodb";
+import Post from "@/models/Post";
+import mongoose from "mongoose";
 import { NextResponse } from "next/server";
+
+// MongoDB의 ObjectId가 유효한지 검사하는 함수
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 // 특정 게시글 조회 - GET
 export async function GET(req, { params }) {
-  // params = { id : '1' }
-  // params.id = '1'
-  // parseInt(params.id) = 1
   try {
-    // id에 해당하는 게시글 찾기
-    const post = posts.find((p) => {
-      // p = { id: 1, ...}
-      return p.id === parseInt(params.id)
-    })
+    await connectDB();
 
-    // 게시글이 없을 경우 404 응답
-   if (!post) {
-     return NextResponse.json(
-       { error: '게시글을 찾을 수 없습니다.' },
-       { status: 404 }
-     );
-   }
+    const resolvedParams = await Promise.resolve(params);
 
-    return NextResponse.json(post)
+    if (!isValidObjectId(resolvedParams.id)) {
+      return NextResponse.json(
+        { error: '유효하지 않은 게시글 ID입니다.' },
+        { status: 400 }
+      );
+    }
+
+    const post = await Post.findById(resolvedParams.id);
+    console.log('Found post:', post);  // 조회된 게시글 확인
+
+    if (!post) {
+      return NextResponse.json(
+        { error: '게시글을 찾을 수 없습니다.' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json(post);
   } catch (error) {
+    console.error('Server error:', error);  // 에러 로깅 추가
     return NextResponse.json(
       { error: '게시글을 불러오는데 실패했습니다.' },
       { status: 500 }
-    )
+    );
   }
 }
 
 // 특정 게시글 수정 - PUT
 export async function PUT(req, { params }) {
   try {
+    // MongoDB 연결
+    await connectDB();
+    const resolvedParams = await Promise.resolve(params);
+
+    // ID 유효성 검사
+    if (!isValidObjectId(resolvedParams.id)) {
+      return NextResponse.json(
+        { error: '유효하지 않은 게시글 ID입니다.' },
+        { status: 400 }
+      );
+    }
+
     const data = await req.json();
-    // data = { title: '수정된 제목', content: '수정된 내용' }
 
-    // id에 해당하는 게시글 찾기
-    const index = posts.findIndex((p) => {
-      return p.id === parseInt(params.id)
-    })
+    // findByIdAndUpdate: ID로 게시글을 찾아 업데이트
+   // $set: MongoDB 업데이트 연산자, new: true는 업데이트된 문서 반환
+   const post = await Post.findByIdAndUpdate(
+     resolvedParams.id,
+     { $set: data },
+     { new: true, runValidators: true }
+   );
 
-    // 게시글이 없을 경우 404 응답
-    if (index === -1) {
+    if (!post) {
       return NextResponse.json(
         { error: '게시글을 찾을 수 없습니다.' },
         { status: 404 }
       )
     }
 
-    // 게시글 업데이트
-    posts[index] = {
-      ...posts[index],
-      title: data.title || posts[index].title,
-      content: data.content || posts[index].content
-    }
-
-    return NextResponse.json(posts[index], { status: 201 })
+    return NextResponse.json(post, { status: 201 })
 
   } catch (error) {
     return NextResponse.json(
@@ -68,23 +85,28 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    // id에 해당하는 게시글의 인덱스 번호 찾기
-    const index = posts.findIndex((p) => {
-      return p.id === parseInt(params.id)
-    })
+    await connectDB();
+    const resolvedParams = await Promise.resolve(params);
 
-    // 게시글이 없을 경우 404 응답
-    if (index === -1) {
+   // ID 유효성 검사
+   if (!isValidObjectId(resolvedParams.id)) {
+     return NextResponse.json(
+       { error: '유효하지 않은 게시글 ID입니다.' },
+       { status: 400 }
+     );
+   }
+
+
+    // findByIdAndDelete: ID로 게시글을 찾아 삭제
+    const post = await Post.findByIdAndDelete(resolvedParams.id);
+
+    if (!post) {
       return NextResponse.json(
         { error: '게시글을 찾을 수 없습니다.' },
         { status: 404 }
       )
     }
 
-    // 서버의 데이터 베이스(posts) 글 삭제
-    posts.splice(index, 1)
-
-    // 클라이언트 응답
     return NextResponse.json(
       { message: '게시글이 삭제되었습니다.'},
       { status: 200 }

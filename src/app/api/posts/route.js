@@ -1,13 +1,19 @@
+import connectDB from "@/lib/mongodb";
+import Post from "@/models/Post";
 import { NextResponse } from "next/server";
 import { posts } from "@/data/posts";
 
 // 전체 글 조회 - GET 요청 처리
 export async function GET() {
-  // 성공
   try {
+    // 몽고 연결
+    await connectDB();
+    // 포스트 모델을 이용해 전체 글 조회
+    // sort() 메서드를 이용해 최신 글이 위로 오도록 정렬
+    const posts = await Post.find({}).sort({ createdAt: -1 });
+
     return NextResponse.json(posts)
   }
-  // 실패
   catch (error) {
     return NextResponse.json(
       { error: '게시글을 불러오는데 실패했습니다.' },
@@ -19,10 +25,9 @@ export async function GET() {
 // 글 생성 - POST 요청 처리
 export async function POST(req) {
   try {
-    // data = { title: '새 제목', content: '새 내용' }
+    await connectDB();
     const data = await req.json();
 
-    // 제목이나 내용이 없는 경우
     if (!data.title || !data.content) {
       return NextResponse.json(
         {error: '제목과 내용은 필수입니다.'}, 
@@ -30,18 +35,8 @@ export async function POST(req) {
       )
     }
 
-    // newPost 객체 생성
-    const newPost = {
-      id: posts.length + 1,
-      title: data.title,
-      content: data.content,
-      createdAt: new Date().toLocaleDateString()
-    }
+    const newPost = await Post.create(data);
 
-    // 서버의 데이터 베이스(posts)에 데이터 추가
-    posts.push(newPost)
-
-    // 클라이언트에게 새 글을 응답
     return NextResponse.json(newPost, {status: 201})
   }
   catch (error) {
