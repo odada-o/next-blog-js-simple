@@ -7,13 +7,13 @@ const Header = () => {
     const { user, loginWithGoogle, logout } = useAuth()
 
     return (
-        <header>
+        <header className="flex justify-between items-center p-4">
             <h1>
                 <Link href="/">logo</Link>
             </h1>
 
             <nav>
-                <ul>
+                <ul className="flex space-x-4">
                     <li>
                         <Link href="/about">About</Link>
                     </li>
