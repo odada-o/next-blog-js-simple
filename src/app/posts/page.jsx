@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
+import { formatDate } from '@/utils/formatDate'
 
 const PostsPage = () => {
 
@@ -41,7 +42,9 @@ const PostsPage = () => {
           <Link key={post._id} href={`/posts/${post._id}`} className='flex flex-col gap-4 my-5 pt-10 py-5'>
             <h3 className='text-4xl font-semibold'>{post.title}</h3>
             <p className='text-xl'>{post.content}</p>
-            <span className='text-gray-400'>{post.createdAt}</span>
+            <span className='text-gray-400'>
+              {formatDate(post.createdAt)}
+            </span>
           </Link>
         ))}
       </div>

@@ -1,5 +1,6 @@
 "use client"
 
+import { formatDate } from '@/utils/formatDate'
 import axios from 'axios'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -53,7 +54,7 @@ const PostDetailPage = ({params}) => {
           {post.title}
         </h2>
         <span className='text-gray-400 block text-right'>
-          {post.createdAt}
+          {formatDate(post.createdAt)}
         </span>
       </div>
       <p className='text-xl flex-1'>
