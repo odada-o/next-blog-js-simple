@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/firebase/auth'
+import { useAuth } from '@/lib/firebase/auth'
 
 const Signup = () => {
     const { register } = useAuth()

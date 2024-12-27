@@ -3,7 +3,7 @@
 // pages/login.tsx
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/firebase/auth'
+import { useAuth } from '@/lib/firebase/auth'
 
 const Login = () => {
     const { login, loginWithGoogle } = useAuth()
