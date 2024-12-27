@@ -23,7 +23,7 @@ const Login = () => {
     }
 
     return (
-        <div>
+        <div className='container mx-auto'>
             <h2>로그인</h2>
             {error && <p>{error}</p>}
             <form onSubmit={handleLogin}>
